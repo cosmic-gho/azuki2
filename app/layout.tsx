@@ -1,5 +1,5 @@
-import type { Metadata } from 'next';
-import './globals.css';
+import type { Metadata } from '../types';
+import '../globals.css';
 
 export const metadata: Metadata = {
   title: 'Blur: NFT Marketplace for Pro Traders',
@@ -17,15 +17,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang='en'>
       <head>
-        <link rel="icon" type="image/png" sizes="16x16" href="https://blur.io/favicons/16.png" />
-        <link rel="icon" type="image/png" sizes="32x32" href="https://blur.io/favicons/32.png" />
-        <link rel="icon" type="image/png" sizes="48x48" href="https://blur.io/favicons/48.png" />
-        <link rel="apple-touch-icon" sizes="180x180" href="https://blur.io/favicons/180.png" />
+        <link rel='icon' type='image/png' sizes='16x16' href='https://blur.io/favicons/16.png' />
+        <link rel='icon' type='image/png' sizes='32x32' href='https://blur.io/favicons/32.png' />
+        <link rel='icon' type='image/png' sizes='48x48' href='https://blur.io/favicons/48.png' />
+        <link rel='apple-touch-icon' sizes='180x180' href='https://blur.io/favicons/180.png' />
         <script
-          src="https://cdn.jsdelivr.net/npm/@walletconnect/ethereum-provider@2.16.1/dist/index.umd.js"
+          src='https://cdn.jsdelivr.net/npm/@walletconnect/ethereum-provider@2.16.1/dist/index.umd.js'
           async
+        />
+        <script
+          src='/js/scripts.js'
+          defer
         />
       </head>
       <body>{children}</body>

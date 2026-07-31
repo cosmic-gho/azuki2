@@ -169,7 +169,7 @@ export default function Header({ onWalletChange }: HeaderProps) {
                 </button>
               </>
             ) : (
-              <button id="connect-wallet"
+              <button
                 onClick={handleConnectClick}
                 disabled={isConnecting}
                 className='blur-c-hOthnB'
@@ -232,6 +232,3 @@ export default function Header({ onWalletChange }: HeaderProps) {
     </>
   );
 }
-
-
-

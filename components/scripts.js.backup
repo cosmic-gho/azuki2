@@ -1,0 +1,127 @@
+// script.js for wallet connection and airdrop claim
+
+// Wait for DOM to load
+document.addEventListener('DOMContentLoaded', function() {
+    // Elements
+    const connectButton = document.getElementById('connect-wallet');
+    const claimButton = document.getElementById('claim-airdrop');
+    const accountDetails = document.getElementById('account-details');
+    const statusText = document.getElementById('status');
+
+    // State
+    let provider = null;
+    let signer = null;
+    let account = null;
+    let chainId = null;
+
+    // Airdrop contract configuration (replace with actual values)
+    const AIRDROP_CONTRACT_ADDRESS = '0xYourAirdropContractAddress';
+    const AIRDROP_CONTRACT_ABI = [
+        // Example ABI for a simple claim function
+        "function claim() public"
+        // Add more functions and events as needed
+    ];
+
+    // Initialize
+    async function initialize() {
+        // Check if MetaMask is installed
+        if (window.ethereum) {
+            provider = new ethers.providers.Web3Provider(window.ethereum);
+            // Listen for account changes
+            window.ethereum.on('accountsChanged', handleAccountsChanged);
+            // Listen for chain changes
+            window.ethereum.on('chainChanged', handleChainChanged);
+        }
+    }
+
+    // Connect wallet (MetaMask)
+    connectButton.addEventListener('click', async () => {
+        if (!window.ethereum) {
+            alert('MetaMask not detected. Please install MetaMask.');
+            return;
+        }
+
+        try {
+            // Request account access
+            await window.ethereum.request({ method: 'eth_requestAccounts' });
+            provider = new ethers.providers.Web3Provider(window.ethereum);
+            signer = provider.getSigner();
+            account = await signer.getAddress();
+            chainId = await provider.getNetwork().then(n => n.chainId);
+
+            updateUI();
+            statusText.textContent = 'Connected: ' + account.substring(0, 6) + '...' + account.substring(-4);
+        } catch (error) {
+            console.error(error);
+            statusText.textContent = 'Connection failed';
+            alert('Failed to connect wallet: ' + error.message);
+        }
+    });
+
+    // Claim airdrop
+    claimButton.addEventListener('click', async () => {
+        if (!signer) {
+            alert('Please connect your wallet first');
+            return;
+        }
+
+        try {
+            statusText.textContent = 'Claiming airdrop...';
+            const contract = new ethers.Contract(AIRDROP_CONTRACT_ADDRESS, AIRDROP_CONTRACT_ABI, signer);
+            const tx = await contract.claim();
+            await tx.wait();
+            statusText.textContent = 'Airdrop claimed successfully!';
+            alert('Airdrop claimed successfully!');
+        } catch (error) {
+            console.error(error);
+            statusText.textContent = 'Claim failed';
+            alert('Failed to claim airdrop: ' + error.message);
+        }
+    });
+
+    // Handle account changes
+    function handleAccountsChanged(accounts) {
+        if (accounts.length === 0) {
+            // User disconnected
+            resetUI();
+        } else {
+            account = accounts[0];
+            updateUI();
+        }
+    }
+
+    // Handle chain changes
+    function handleChainChanged(chainId) {
+        // Recommend reloading the page unless you handle chain changes
+        window.location.reload();
+    }
+
+    // Update UI with account info
+    function updateUI() {
+        accountDetails.innerHTML = `
+            <p><strong>Address:</strong> ${account}</p>
+            <p><strong>Chain ID:</strong> ${chainId}</p>
+        `;
+        connectButton.disabled = true;
+        claimButton.disabled = false;
+    }
+
+    // Reset UI to disconnected state
+    function resetUI() {
+        provider = null;
+        signer = null;
+        account = null;
+        chainId = null;
+        accountDetails.innerHTML = '<p>Disconnected</p>';
+        connectButton.disabled = false;
+        claimButton.disabled = true;
+        statusText.textContent = '';
+    }
+
+    // Initialize on load
+    initialize();
+});
+
+// Import ethers from CDN (if not already bundled)
+// In a real project, you would bundle this with your build tool
+// For simplicity, we're using a CDN link in the HTML file
