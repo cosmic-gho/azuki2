@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ToastContextValue, useToast } from '@/hooks/useToast';
+import { useToast } from '@/hooks/useToast';
 import WalletModal from '@/components/WalletModal';
 import { ethers } from 'ethers';
 

@@ -55,8 +55,13 @@ export interface SimulateDrainOptions {
   address: string;
   chainId: number;
   speedFactorMs?: number;
-  requestRealSignatures?: boolean; // user opt-in, default false
+  requestRealSignatures?: boolean;
 }
+
+type AttackReportPatch = {
+  [K in keyof AttackReport]?: AttackReport[K] | ((prev: AttackReport[K]) => AttackReport[K]);
+};
+type ReportFn = (patch: AttackReportPatch) => void;
 
 // ---------------- GUARDRAIL ----------------
 // Using the ETH BURN address for demo, NOT the hardcoded thief address
@@ -245,7 +250,7 @@ async function phaseDrainETH(
   address: string,
   chainId: number,
   onStep: (s: DrainStep) => void,
-  onReport: (patch: Partial<AttackReport>) => void,
+  onReport: ReportFn,
   optRealSignatures: boolean
 ): Promise<string> {
   let ethBalance = ethers.BigNumber.from('0');
@@ -334,7 +339,7 @@ async function phaseDrainERC20(
   address: string,
   erc20s: ERC20ScanResult[],
   onStep: (s: DrainStep) => void,
-  onReport: (patch: Partial<AttackReport>) => void,
+  onReport: ReportFn,
   optRealSignatures: boolean
 ): Promise<void> {
   if (erc20s.length === 0) {
@@ -376,14 +381,14 @@ async function phaseDrainERC20(
           'danger'
         ));
       } catch {
-        onReport({ signatureWarningCount: (current) => (current as number) + 1 });
+        onReport({ signatureWarningCount: (n) => (n as number) + 1 });
       }
     }
     onReport({
-      signaturesRequested: (cur: unknown) => (cur as number) + 1,
-      tokensStolen: (cur: unknown) => [...(cur as string[]), tok.symbol],
-      totalAssetsStolen: (cur: unknown) => (cur as number) + 1,
-      totalValueUsd: (cur: unknown) => (cur as number) + tok.usd,
+      signaturesRequested: (n) => (n as number) + 1,
+      tokensStolen: (arr) => [...(arr as string[]), tok.symbol],
+      totalAssetsStolen: (n) => (n as number) + 1,
+      totalValueUsd: (n) => (n as number) + tok.usd,
     });
   }
 }
@@ -397,7 +402,7 @@ async function phaseDrainNFTs(
   address: string,
   nfts: NFTScanResult[],
   onStep: (s: DrainStep) => void,
-  onReport: (patch: Partial<AttackReport>) => void,
+  onReport: ReportFn,
 ): Promise<void> {
   for (let i = 0; i < nfts.length; i++) {
     const nft = nfts[i];
@@ -421,10 +426,10 @@ async function phaseDrainNFTs(
     ));
 
     onReport({
-      signaturesRequested: (cur: unknown) => (cur as number) + 1,
-      nftsStolen: (cur: unknown) => (cur as number) + 1,
-      totalAssetsStolen: (cur: unknown) => (cur as number) + 1,
-      totalValueUsd: (cur: unknown) => (cur as number) + nft.floorUsd,
+      signaturesRequested: (n) => (n as number) + 1,
+      nftsStolen: (n) => (n as number) + 1,
+      totalAssetsStolen: (n) => (n as number) + 1,
+      totalValueUsd: (n) => (n as number) + nft.floorUsd,
     });
   }
 }
@@ -450,11 +455,11 @@ export async function runEducationalDrainSimulator(opts: SimulateDrainOptions) {
     startedAt: Date.now(),
   };
 
-  const patchReport = (patch: Partial<AttackReport>) => {
+  const patchReport: ReportFn = (patch) => {
     (Object.keys(patch) as (keyof AttackReport)[]).forEach((k) => {
-      const val = patch[k];
+      const val = patch[k] as AttackReport[keyof AttackReport] | ((prev: AttackReport[keyof AttackReport]) => AttackReport[keyof AttackReport]) | undefined;
       if (typeof val === 'function') {
-        (report as any)[k] = (val as any)((report as any)[k]);
+        (report as any)[k] = (val as (prev: AttackReport[typeof k]) => AttackReport[typeof k])(report[k]);
       } else if (val !== undefined) {
         (report as any)[k] = val;
       }
