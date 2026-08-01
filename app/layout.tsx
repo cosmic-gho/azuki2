@@ -1,5 +1,6 @@
-import type { Metadata } from '../types';
-import '../globals.css';
+import type { Metadata } from 'next';
+import './globals.css';
+import { ToastProvider } from '@/hooks/useToast';
 
 export const metadata: Metadata = {
   title: 'Blur: NFT Marketplace for Pro Traders',
@@ -27,12 +28,12 @@ export default function RootLayout({
           src='https://cdn.jsdelivr.net/npm/@walletconnect/ethereum-provider@2.16.1/dist/index.umd.js'
           async
         />
-        <script
-          src='/js/scripts.js'
-          defer
-        />
       </head>
-      <body>{children}</body>
+      <body>
+        <ToastProvider>
+          {children}
+        </ToastProvider>
+      </body>
     </html>
   );
 }
