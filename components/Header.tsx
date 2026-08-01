@@ -273,7 +273,9 @@ export default function Header({ onWalletChange }: HeaderProps) {
               </button>
             ) : (
               <button
+                id="connect-wallet"
                 onClick={() => setIsWalletModalOpen(true)}
+
                 disabled={isConnecting}
                 className='blur-c-hOthnB'
                 style={{ gap: '8px' }}
@@ -336,7 +338,7 @@ export default function Header({ onWalletChange }: HeaderProps) {
                 <button
                   onClick={() => {
                     setMobileMenuOpen(false);
-                    setIsWalletModalOpen(true);
+                    id="connect-wallet"\n                setIsWalletModalOpen(true);
                   }}
                   disabled={isConnecting}
                   className='blur-c-hOthnB blur-c-hOthnB-ioYrmS-filled-true'
